@@ -37,7 +37,13 @@ def login(
     user = user_crud.get_by_username(db, username=form.username)
     if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_access_token(data={"sub": user.username})
+    token = create_access_token(
+        data={
+            "sub": user.username,
+            "user_id": user.id,
+            "role": user.role.name if user.role else "user",
+        }
+    )
     return Token(access_token=token, token_type="bearer")
 
 
