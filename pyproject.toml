@@ -1,0 +1,17 @@
+[project]
+name = "backend-practice"
+version = "0.1.0"
+description = "FastAPI backend with best practices"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "sqlalchemy>=2.0",
+    "python-jose[cryptography]>=3.3.0",
+    "bcrypt>=4.0.0",
+    "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+start = "uvicorn backend_app.main:app --reload --port 8000"
