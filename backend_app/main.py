@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend_app.api.v1 import admin, auth, items
 from backend_app.core.config import settings
+from backend_app.core.middleware import ProcessTimeMiddleware
 from backend_app.database import SessionLocal, engine
 from backend_app.core.security import hash_password
 from backend_app.models.base import Base
@@ -65,6 +66,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(items.router, prefix="/api/v1")
