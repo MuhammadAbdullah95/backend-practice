@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend_app.api.deps import get_current_user
 from backend_app.core.security import create_access_token, hash_password, verify_password
+from backend_app.crud.role import role_crud
 from backend_app.crud.user import user_crud
 from backend_app.database import get_db
 from backend_app.models.user import User
@@ -20,7 +21,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     if user_crud.get_by_username(db, username=user.username):
         raise HTTPException(status_code=400, detail="Username already taken")
     hashed = hash_password(user.password)
-    db_user = user_crud.create(db, username=user.username, hashed_password=hashed)
+    user_role = role_crud.get_by_name(db, name="user")
+    role_id = user_role.id if user_role else None
+    db_user = user_crud.create(
+        db, username=user.username, hashed_password=hashed, role_id=role_id
+    )
     return db_user
 
 
