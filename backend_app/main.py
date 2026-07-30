@@ -6,22 +6,40 @@ from sqlalchemy.orm import Session
 from backend_app.api.v1 import admin, auth, items
 from backend_app.core.config import settings
 from backend_app.database import SessionLocal, engine
+from backend_app.core.security import hash_password
 from backend_app.models.base import Base
 from backend_app.models.role import Role
+from backend_app.models.user import User
 
 
-def seed_roles():
+def seed_db():
     db: Session = SessionLocal()
-    existing = db.query(Role).first()
-    if existing:
-        db.close()
-        return
-    roles = [
-        Role(id=1, name="admin", description="Full system access"),
-        Role(id=2, name="manager", description="Can manage all items"),
-        Role(id=3, name="user", description="Can manage own items"),
-    ]
-    db.add_all(roles)
+
+    if not db.query(Role).first():
+        roles = [
+            Role(id=1, name="admin", description="Full system access"),
+            Role(id=2, name="manager", description="Can manage all items"),
+            Role(id=3, name="user", description="Can manage own items"),
+        ]
+        db.add_all(roles)
+        db.commit()
+
+    if not db.query(User).filter(User.username == "admin").first():
+        db.add(
+            User(
+                username="admin",
+                hashed_password=hash_password("admin123"),
+                role_id=1,
+            )
+        )
+    if not db.query(User).filter(User.username == "manager").first():
+        db.add(
+            User(
+                username="manager",
+                hashed_password=hash_password("manager123"),
+                role_id=2,
+            )
+        )
     db.commit()
     db.close()
 
@@ -29,7 +47,7 @@ def seed_roles():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-    seed_roles()
+    seed_db()
     yield
 
 
